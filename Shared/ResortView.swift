@@ -11,6 +11,7 @@ struct ResortView: View {
     let resort: Resort
     @Environment(\.horizontalSizeClass) var sizeClass
     @State var selectedFacility: String?
+    @EnvironmentObject var favorites: Favorites
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
@@ -58,11 +59,21 @@ struct ResortView: View {
                 .padding(.horizontal)
                 
             }
+            Button(favorites.contains(resort) ? "Remove from favorites" : "Add to favorites") {
+                if self.favorites.contains(self.resort) {
+                    self.favorites.remove(self.resort)
+                }
+                else {
+                    self.favorites.add(self.resort)
+                }
+            }
+            .padding()
         }
         .alert(item: $selectedFacility) {facility in
             Facility.alert(for: facility)
         }
         .navigationBarTitle(Text("\(resort.name), \(resort.country)"), displayMode: .inline)
+        
     }
 }
 
