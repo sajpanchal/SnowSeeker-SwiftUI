@@ -22,3 +22,7 @@ struct Resort: Codable, Identifiable {
     
     
 }
+
+class Resorts: ObservableObject {
+    @Published var resorts: [Resort] = Bundle.main.decode("resorts.json")
+}

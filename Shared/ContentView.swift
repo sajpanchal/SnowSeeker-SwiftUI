@@ -10,16 +10,16 @@ import SwiftUI
 struct ContentView: View {
     static let allResorts: [Resort] = Bundle.main.decode("resorts.json")
     static let example = allResorts[0]
-    @State var resorts: [Resort] = Bundle.main.decode("resorts.json")
+    @ObservedObject var resortArray = Resorts()
     @ObservedObject var favorites = Favorites()
     @State var showActionSheet = false
-    @State var showFilterSheet = false
+    @State var showFilterView = false
     @State var filterType = "country"
     @State var selectActionSheet = 0
     
     var body: some View {
         NavigationView {
-            List(resorts) { resort in
+            List(resortArray.resorts) { resort in
                 NavigationLink(destination: ResortView(resort: resort)) {
                     Image(resort.country)
                         .resizable()
@@ -69,16 +69,16 @@ struct ContentView: View {
                                         filterType = "country"
                                         
                                         print(filterType)
-                                        showFilterSheet = true
+                                        showFilterView.toggle()
                                     },
                                     .default(Text("Size")) {
                                         filterType = "size"
-                                        showFilterSheet = true
+                                        showFilterView.toggle()
                                         print(filterType)
                                     },
                                     .default(Text("Price")) {
                                         filterType = "price"
-                                        showFilterSheet = true
+                                        showFilterView.toggle()
                                         print(filterType)
                                     },
                                     .cancel()
@@ -86,12 +86,17 @@ struct ContentView: View {
                 }
                 
             })
+            .sheet(isPresented: $showFilterView) {
+                FilterView(filterType: filterType).environmentObject(resortArray)
+            }
+            
             WelcomeView()
         }
         .environmentObject(favorites)
     }
     func sortResorts(parameter: String) {
-        resorts.sort {
+        resortArray.resorts =  Bundle.main.decode("resorts.json")
+        resortArray.resorts.sort {
             if parameter == "alphabetical" {
            return $0.name < $1.name
             }
