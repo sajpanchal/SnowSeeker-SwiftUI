@@ -10,10 +10,20 @@ import SwiftUI
 class Favorites: ObservableObject {
     private var resorts: Set<String>
     private let saveKey = "Favorites"
-    
+    let userDefault = UserDefaults.standard
     init() {
-        //load saved data
+        
         self.resorts = []
+        if let decodedData = userDefault.object(forKey: "favorites") as? Data {
+            let decoder = JSONDecoder()
+            if let data = try? decoder.decode(Set<String>.self, from: decodedData) {
+                self.resorts = data
+            }
+            else {
+                fatalError("can't load data")
+            }
+        }
+        
     }
     func contains(_ resort: Resort) -> Bool {
         resorts.contains(resort.id)
@@ -30,6 +40,10 @@ class Favorites: ObservableObject {
         save()
     }
     func save() {
-        // write
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(resorts) {
+            
+            userDefault.set(encoded, forKey: "favorites")
+        }
     }
 }

@@ -59,6 +59,7 @@ struct ResortView: View {
                 .padding(.horizontal)
                 
             }
+            Text("Photo Credit: \(self.resort.imageCredit)")
             Button(favorites.contains(resort) ? "Remove from favorites" : "Add to favorites") {
                 if self.favorites.contains(self.resort) {
                     self.favorites.remove(self.resort)

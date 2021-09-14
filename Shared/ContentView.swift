@@ -10,8 +10,13 @@ import SwiftUI
 struct ContentView: View {
     static let allResorts: [Resort] = Bundle.main.decode("resorts.json")
     static let example = allResorts[0]
-    let resorts: [Resort] = Bundle.main.decode("resorts.json")
+    @State var resorts: [Resort] = Bundle.main.decode("resorts.json")
     @ObservedObject var favorites = Favorites()
+    @State var showActionSheet = false
+    @State var showFilterSheet = false
+    @State var filterType = "country"
+    @State var selectActionSheet = 0
+    
     var body: some View {
         NavigationView {
             List(resorts) { resort in
@@ -38,10 +43,67 @@ struct ContentView: View {
                 }
             }
             .navigationBarTitle("Resorts")
+            .navigationBarItems(leading: Button(action: {
+                self.showActionSheet = true
+                selectActionSheet = 1
+            }, label: {
+                Text("Sort")
+            }) , trailing: Button(action: {
+                self.showActionSheet = true
+                selectActionSheet = 2
+            }, label: {
+                Text("Filter")
+            }))
+            .actionSheet(isPresented: $showActionSheet, content: {
+                if selectActionSheet == 1 {
+                    return ActionSheet(title: Text("Sort Resorts"), message: Text("By:"), buttons: [
+                                    .default(Text("default")) { sortResorts(parameter: "default")},
+                                    .default(Text("Alphabetical")) { sortResorts(parameter: "alphabetical") },
+                                    .default(Text("Country")) { sortResorts(parameter: "country") },
+                                    .cancel()
+                    ])
+                }
+                else {
+                  return ActionSheet(title: Text("Filter Resorts"), message: Text("By:"), buttons: [
+                                    .default(Text("Country")) {
+                                        filterType = "country"
+                                        
+                                        print(filterType)
+                                        showFilterSheet = true
+                                    },
+                                    .default(Text("Size")) {
+                                        filterType = "size"
+                                        showFilterSheet = true
+                                        print(filterType)
+                                    },
+                                    .default(Text("Price")) {
+                                        filterType = "price"
+                                        showFilterSheet = true
+                                        print(filterType)
+                                    },
+                                    .cancel()
+                  ])
+                }
+                
+            })
             WelcomeView()
         }
         .environmentObject(favorites)
     }
+    func sortResorts(parameter: String) {
+        resorts.sort {
+            if parameter == "alphabetical" {
+           return $0.name < $1.name
+            }
+            else if parameter == "country" {
+              return $0.country < $1.country
+            }
+            else {
+                return $0.imageCredit < $1.imageCredit
+            }
+        }
+    }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
